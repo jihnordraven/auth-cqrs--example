@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @unique @default(uuid())
+  username     String? @unique
+  email        String  @unique
+  hashPassword String? @map("hash_password")
+
+  GoogleProfile GoogleProfile?
+  GithubProfile GithubProfile?
+
+  tokens        Token[]
+  emailCodes    EmailCode[]
+  passwordCodes PasswordCode[]
+
+  role     Role      @relation(fields: [roleName], references: [name])
+  roleName RolesEnum @map("role_name")
+
+  emailStatus     EmailStatus     @relation(fields: [emailStatusName], references: [name])
+  emailStatusName EmailStatusEnum @map("email_status_enum")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  isDeleted Boolean @default(false) @map("is_deleted")
+
+  @@map("users")
+}
+
+model Token {
+  id        String   @id @unique @default(uuid())
+  token     String   @unique
+  exp       DateTime
+  userId    String   @map("user_id")
+  userAgent String   @map("user_agent")
+  userIp    String   @map("user_ip")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tokens")
+}
+
+model GoogleProfile {
+  id          String   @id @unique @default(uuid())
+  providerId  String   @unique @map("provider_id")
+  username    String?  @unique
+  email       String   @unique
+  firstName   String?  @map("first_name")
+  lastName    String?  @map("last_name")
+  displayName String?  @map("display_name")
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String   @unique @map("user_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("google_profiles")
+}
+
+model GithubProfile {
+  id        String   @id @unique @default(uuid())
+  userId    String   @unique @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("github_profiles")
+}
+
+model Role {
+  id   Int       @id @unique @default(autoincrement())
+  name RolesEnum @unique
+
+  users User[]
+
+  @@map("roles")
+}
+
+model EmailCode {
+  id        String   @id @unique @default(uuid())
+  code      String   @unique
+  exp       DateTime
+  isUsed    Boolean  @default(false) @map("is_used")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("email_codes")
+}
+
+model PasswordCode {
+  id     String   @id @unique @default(uuid())
+  code   String   @unique
+  exp    DateTime
+  isUsed Boolean  @default(false) @map("is_used")
+  userId String   @map("user_id")
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_codes")
+}
+
+model EmailStatus {
+  id    Int             @id @unique @default(autoincrement())
+  name  EmailStatusEnum @unique
+  users User[]
+
+  @@map("email_statuses")
+}
+
+// enums
+enum RolesEnum {
+  USER
+  ADMIN
+  DEVELOPER
+}
+
+enum EmailStatusEnum {
+  PENDING
+  CONFIRMED
+}
