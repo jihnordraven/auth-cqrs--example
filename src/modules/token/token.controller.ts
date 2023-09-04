@@ -7,8 +7,8 @@ import {
 	Param,
 	UseGuards
 } from '@nestjs/common'
-import { JwtGuard } from 'src/protection/guards'
-import { JwtPayloadDecorator } from 'src/decorators'
+import { JwtGuard } from '@guards'
+import { JwtPayloadDecorator } from '@decorators'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { DeleteManyTokensForUserCommand, DeleteOneTokenForUserCommand } from './commands/impl'
 import { FindManyTokensForUserQuery, FindOneTokenForUserQuery } from './queries/impl'

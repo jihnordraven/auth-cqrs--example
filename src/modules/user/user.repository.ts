@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
+import { PrismaService } from '@modules/prisma/prisma.service'
 import { EmailStatusEnum, GoogleProfile, RolesEnum, User } from '@prisma/client'
 import { red } from 'colorette'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'

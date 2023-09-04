@@ -1,10 +1,12 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common'
-import { UserService } from './user.service'
-import { User } from '@prisma/client'
+import { CommandBus, QueryBus } from '@nestjs/cqrs'
 
 @Controller('user')
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly commandBus: CommandBus,
+		private readonly queryBus: QueryBus
+	) {}
 
 	@Get()
 	async getAllUsers(): Promise<void> {}

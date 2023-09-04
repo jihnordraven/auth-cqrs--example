@@ -7,7 +7,6 @@ import {
 	Ip,
 	Post,
 	Query,
-	Req,
 	Res,
 	UseGuards
 } from '@nestjs/common'
@@ -23,19 +22,18 @@ import {
 	ResendEmailCodeCommand,
 	ValidateTokenCommand
 } from './commands/impl'
-import { Tokens } from 'src/types'
+import { Tokens } from '@types'
 import {
 	CookieDecorator,
 	GooglePayloadDecorator,
 	JwtPayloadDecorator,
-	UserAgentDecorator
+	UserAgentDecorator,
+	LocalPayloadDecorator
 } from 'src/decorators'
-import { GoogleGuard, IsEmailConfirmGuard, JwtGuard, LocalGuard } from 'src/protection/guards'
-import { LocalPayloadDecorator } from 'src/decorators/local-payload.decorator'
-import { Request, Response } from 'express'
-import { REFRESH_TOKEN } from 'src/constants'
-import { GoogleProfile, Token } from '@prisma/client'
-import { IGoogleUser } from 'src/protection/strategies'
+import { GoogleGuard, IsEmailConfirmGuard, JwtGuard, LocalGuard } from '@guards'
+import { Response } from 'express'
+import { REFRESH_TOKEN } from '@constants'
+import { GoogleProfile } from '@prisma/client'
 
 @Controller('auth')
 export class AuthController {

@@ -7,7 +7,7 @@ import { EmailCodeModule } from './modules/email-code/email-code.module'
 import { PrismaModule } from './modules/prisma/prisma.module'
 import { ConfigModule } from '@nestjs/config'
 import { CqrsModule } from '@nestjs/cqrs'
-import { GoogleStrategy, JwtStrategy, LocalStrategy } from './protection/strategies'
+import { GoogleStrategy, JwtStrategy, LocalStrategy } from '@strategies'
 import { CacheModule } from '@nestjs/cache-manager'
 import { redisStore } from 'cache-manager-redis-yet'
 

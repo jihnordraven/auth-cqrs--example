@@ -14,9 +14,12 @@ import {
 	ResendEmailCodeHandler,
 	ValidateTokenHandler
 } from './commands/handlers'
-import { BcryptAdapter, MailerAdapter } from 'src/adapters'
+import { BcryptAdapter, MailerAdapter } from '@adapters'
 import { JwtModule } from '@nestjs/jwt'
 import { PasswordCodeModule } from '../password-code/password-code.module'
+import { ValidateUserHandler } from './queries/handlers'
+
+const adapters = [BcryptAdapter, MailerAdapter]
 
 const commandHandlers = [
 	LocalRegisterHandler,
@@ -28,7 +31,7 @@ const commandHandlers = [
 	GoogleRegisterHandler
 ]
 
-const adapters = [BcryptAdapter, MailerAdapter]
+const queryHandlers = [ValidateUserHandler]
 
 @Module({
 	imports: [
@@ -40,6 +43,6 @@ const adapters = [BcryptAdapter, MailerAdapter]
 		PasswordCodeModule
 	],
 	controllers: [AuthController],
-	providers: [AuthService, ...commandHandlers, ...adapters]
+	providers: [AuthService, ...commandHandlers, ...adapters, ...queryHandlers]
 })
 export class AuthModule {}

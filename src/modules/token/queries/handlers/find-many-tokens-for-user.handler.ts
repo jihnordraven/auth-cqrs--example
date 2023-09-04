@@ -11,7 +11,7 @@ export class FindManyTokensForUserHandler
 	constructor(protected readonly tokenRepository: TokenRepository) {}
 
 	async execute({ dto: { userId } }: FindManyTokensForUserQuery): Promise<Token[]> {
-		const tokens: Token[] | null = await this.tokenRepository.findManyTokenForUser({
+		const tokens: Token[] | null = await this.tokenRepository.findManyTokensForUser({
 			userId
 		})
 

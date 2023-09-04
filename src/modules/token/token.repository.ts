@@ -1,12 +1,17 @@
-import { Injectable } from '@nestjs/common'
-import { PrismaService } from '../prisma/prisma.service'
+import { Inject, Injectable } from '@nestjs/common'
+import { PrismaService } from '@modules/prisma/prisma.service'
 import { Token } from '@prisma/client'
 import { v4 } from 'uuid'
 import { add } from 'date-fns'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from 'cache-manager'
 
 @Injectable()
 export class TokenRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		@Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+	) {}
 
 	async createOne({
 		userId,
@@ -40,11 +45,41 @@ export class TokenRepository {
 	}
 
 	async findByToken({ token }: { token: string }): Promise<Token | null> {
-		return this.prisma.token.findUnique({ where: { token } })
+		const refreshToken: Token | null = await this.cacheManager.get(
+			`token-by-token:${token}`
+		)
+		if (!refreshToken) {
+			const refreshToken: Token | null = await this.prisma.token.findUnique({
+				where: { token }
+			})
+			if (!refreshToken) return null
+			await this.cacheManager.set(
+				`token-by-token:${token}`,
+				refreshToken,
+				Number(refreshToken.exp)
+			)
+			return refreshToken
+		}
+		return refreshToken
 	}
 
 	async findOneByTokenId({ tokenId }: { tokenId: string }): Promise<Token | null> {
-		return this.prisma.token.findUnique({ where: { id: tokenId } })
+		const refreshToken: Token | null = await this.cacheManager.get(
+			`token-by-token-id:${tokenId}`
+		)
+		if (!refreshToken) {
+			const refreshToken: Token | null = await this.prisma.token.findUnique({
+				where: { id: tokenId }
+			})
+			if (!refreshToken) return null
+			await this.cacheManager.set(
+				`token-by-token-id:${tokenId}`,
+				refreshToken,
+				Number(refreshToken.exp)
+			)
+			return refreshToken
+		}
+		return refreshToken
 	}
 
 	async deleteOne({
@@ -77,10 +112,36 @@ export class TokenRepository {
 	}
 
 	async findOneTokenForUser({ tokenId }: { tokenId: string }): Promise<Token> {
-		return this.prisma.token.findUnique({ where: { id: tokenId } })
+		const token: Token | null = await this.cacheManager.get(
+			`find-one-token-for-user:${tokenId}`
+		)
+		if (!token) {
+			const token: Token | null = await this.prisma.token.findUnique({
+				where: { id: tokenId }
+			})
+			if (!token) return null
+			await this.cacheManager.set(
+				`find-one-token-for-user:${token}`,
+				token,
+				Number(token.exp)
+			)
+			return token
+		}
+		return token
 	}
 
-	async findManyTokenForUser({ userId }: { userId: string }): Promise<Token[]> {
-		return this.prisma.token.findMany({ where: { userId } })
+	async findManyTokensForUser({ userId }: { userId: string }): Promise<Token[]> {
+		const tokens: Token[] | null = await this.cacheManager.get(
+			`find-many-tokens-for-user:${userId}`
+		)
+		if (!tokens) {
+			const tokens: Token[] | null = await this.prisma.token.findMany({
+				where: { userId }
+			})
+			if (!tokens) return null
+			await this.cacheManager.set(`find-many-tokens-for-user:${userId}`, tokens, 500)
+			return tokens
+		}
+		return tokens
 	}
 }
